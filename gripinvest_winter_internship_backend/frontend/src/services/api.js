@@ -26,6 +26,9 @@ apiClient.interceptors.request.use(
   }
 );
 
+// Keep track of shown errors to prevent duplicates
+let errorCooldown = {};
+
 // Response interceptor to handle errors
 apiClient.interceptors.response.use(
   (response) => {
@@ -34,15 +37,26 @@ apiClient.interceptors.response.use(
   (error) => {
     console.error('API Error:', error);
     
-    if (error.response?.status === 401) {
-      // Token expired or invalid
-      localStorage.removeItem('token');
-      window.location.href = '/login';
-      toast.error('Session expired. Please login again.');
-    } else if (error.response?.status === 429) {
-      toast.error('Too many requests. Please try again later.');
-    } else if (error.response?.status >= 500) {
-      toast.error('Server error. Please try again later.');
+    const errorKey = `${error.response?.status}-${error.config?.url}`;
+    const now = Date.now();
+    
+    // Only show error toast if we haven't shown this error recently (within 5 seconds)
+    if (!errorCooldown[errorKey] || now - errorCooldown[errorKey] > 5000) {
+      if (error.response?.status === 401) {
+        // Token expired or invalid
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+        toast.error('Session expired. Please login again.');
+      } else if (error.response?.status === 429) {
+        toast.error('Too many requests. Please try again later.');
+      } else if (error.response?.status >= 500) {
+        toast.error('Server error. Please try again later.');
+      } else if (error.response?.status === 400) {
+        // Don't show toast for 400 errors, let components handle them
+        console.warn('Bad request:', error.config?.url, error.response?.data?.message);
+      }
+      
+      errorCooldown[errorKey] = now;
     }
     
     return Promise.reject(error);
@@ -74,7 +88,11 @@ export const authAPI = {
 // Products API
 export const productsAPI = {
   getProducts: (params = {}) => {
-    const queryString = new URLSearchParams(params).toString();
+    // Filter out undefined values
+    const filteredParams = Object.fromEntries(
+      Object.entries(params).filter(([_, value]) => value !== undefined && value !== '')
+    );
+    const queryString = new URLSearchParams(filteredParams).toString();
     return apiClient.get(`/products${queryString ? `?${queryString}` : ''}`);
   },
   getProductById: (id) => apiClient.get(`/products/${id}`),
@@ -90,14 +108,22 @@ export const productsAPI = {
 export const investmentAPI = {
   createInvestment: (investmentData) => apiClient.post('/investments', investmentData),
   getPortfolio: (params = {}) => {
-    const queryString = new URLSearchParams(params).toString();
+    // Filter out undefined values
+    const filteredParams = Object.fromEntries(
+      Object.entries(params).filter(([_, value]) => value !== undefined && value !== '')
+    );
+    const queryString = new URLSearchParams(filteredParams).toString();
     return apiClient.get(`/investments/portfolio${queryString ? `?${queryString}` : ''}`);
   },
   getInvestment: (id) => apiClient.get(`/investments/${id}`),
   updateInvestment: (id, updateData) => apiClient.put(`/investments/${id}`, updateData),
   cancelInvestment: (id) => apiClient.delete(`/investments/${id}`),
   getPortfolioInsights: (params = {}) => {
-    const queryString = new URLSearchParams(params).toString();
+    // Filter out undefined values
+    const filteredParams = Object.fromEntries(
+      Object.entries(params).filter(([_, value]) => value !== undefined && value !== '')
+    );
+    const queryString = new URLSearchParams(filteredParams).toString();
     return apiClient.get(`/investments/insights${queryString ? `?${queryString}` : ''}`);
   },
 };

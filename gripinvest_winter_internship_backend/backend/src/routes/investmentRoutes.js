@@ -8,8 +8,7 @@ const router = express.Router();
 
 // Schemas
 const createSchema = Joi.object({
-  productId: Joi.string().uuid().required().messages({
-    "string.uuid": "Product ID must be a valid UUID",
+  productId: Joi.string().required().messages({
     "any.required": "Product ID is required",
   }),
   amount: Joi.number().positive().precision(2).min(100).required().messages({
@@ -23,8 +22,7 @@ const createSchema = Joi.object({
 });
 
 const idParams = Joi.object({
-  id: Joi.string().uuid().required().messages({
-    "string.uuid": "ID must be a valid UUID",
+  id: Joi.string().required().messages({
     "any.required": "ID is required",
   }),
 });

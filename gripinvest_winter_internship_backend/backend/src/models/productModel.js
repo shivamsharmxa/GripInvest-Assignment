@@ -139,12 +139,12 @@ class ProductModel {
 
       // Tenure filter
       if (filters.minTenure) {
-        whereConditions.push('p.tenure_months >= ?');
+        whereConditions.push('p.tenure >= ?');
         params.push(parseInt(filters.minTenure));
       }
 
       if (filters.maxTenure) {
-        whereConditions.push('p.tenure_months <= ?');
+        whereConditions.push('p.tenure <= ?');
         params.push(parseInt(filters.maxTenure));
       }
 
@@ -193,7 +193,7 @@ class ProductModel {
           sortClause += 'p.tenure ASC';
           break;
         case 'popularity':
-          sortClause += 'total_investments DESC';
+          sortClause += 'p.created_at DESC';
           break;
         case 'name':
           sortClause += 'p.name ASC';
@@ -259,14 +259,14 @@ class ProductModel {
       const allowedFields = {
         name: 'name',
         investmentType: 'category',
-        tenureMonths: 'tenure_months',
+        tenureMonths: 'tenure',
         annualYield: 'expected_return',
         riskLevel: 'risk_level',
         minInvestment: 'min_investment',
         maxInvestment: 'max_investment',
         description: 'description',
         issuer: 'issuer',
-        creditRating: 'credit_rating',
+        creditRating: 'rating',
         liquidityLevel: 'liquidity_level',
         taxBenefits: 'tax_benefits',
         compoundFrequency: 'compound_frequency',
@@ -465,7 +465,7 @@ class ProductModel {
           (${riskScoring} * 0.4 + 
            (p.expected_return / 20) * 0.3 + 
            (COUNT(i.id) / 100) * 0.2 + 
-           (CASE p.tax_benefits WHEN TRUE THEN 1 ELSE 0 END) * 0.1) as recommendation_score
+           0.1) as recommendation_score
         FROM ${this.tableName} p
         LEFT JOIN investments i ON p.id = i.product_id AND i.status = 'active'
         WHERE p.is_active = TRUE
@@ -689,6 +689,28 @@ class ProductModel {
   }
 
   /**
+   * Helper method to safely parse JSON fields
+   * @param {string} jsonString - JSON string to parse
+   * @param {any} defaultValue - Default value if parsing fails
+   * @returns {any} Parsed JSON or default value
+   */
+  parseJsonField(jsonString, defaultValue) {
+    if (!jsonString) return defaultValue;
+    
+    try {
+      // Handle case where the field is already parsed (array/object)
+      if (Array.isArray(jsonString) || typeof jsonString === 'object') {
+        return jsonString;
+      }
+      
+      return JSON.parse(jsonString);
+    } catch (error) {
+      console.warn('Failed to parse JSON field:', jsonString);
+      return defaultValue;
+    }
+  }
+
+  /**
    * Format product data for response
    * @param {Object} productData - Raw product data from database
    * @returns {Object} Formatted product data
@@ -722,32 +744,32 @@ class ProductModel {
       updatedAt: productData.updated_at,
       
       // Add missing array properties with defaults
-      keyHighlights: productData.key_highlights ? JSON.parse(productData.key_highlights) : [
+      keyHighlights: this.parseJsonField(productData.key_highlights, [
         'Strong credit rating',
         'Regular income payments',
         'Minimum investment amount',
         'Professional management'
-      ],
-      features: productData.features ? JSON.parse(productData.features) : [
+      ]),
+      features: this.parseJsonField(productData.features, [
         'Regular Interest Payments',
         'Credit Enhancement',
         'Listed on Exchange',
         'High Liquidity',
         'Investment Grade Rating',
         'Tax Efficient'
-      ],
-      documents: productData.documents ? JSON.parse(productData.documents) : [
+      ]),
+      documents: this.parseJsonField(productData.documents, [
         { name: 'Information Memorandum', url: '#' },
         { name: 'Financial Statements', url: '#' },
         { name: 'Rating Report', url: '#' },
         { name: 'Terms & Conditions', url: '#' }
-      ],
-      risks: productData.risks ? JSON.parse(productData.risks) : [
+      ]),
+      risks: this.parseJsonField(productData.risks, [
         'Credit risk - Risk of issuer default',
         'Interest rate risk - Bond prices may fluctuate',
         'Liquidity risk - May face liquidity constraints',
         'Market risk - Subject to market volatility'
-      ],
+      ]),
       
       // Additional properties needed by frontend
       ratingAgency: 'CRISIL',

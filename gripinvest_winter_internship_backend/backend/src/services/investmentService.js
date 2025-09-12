@@ -24,13 +24,9 @@ class InvestmentService {
    */
   async createInvestment(userId, productId, amount, options = {}) {
     try {
-      // Validate inputs
-      const idValidation = ValidationHelper.validateUUID(
-        productId,
-        "Product ID"
-      );
-      if (!idValidation.isValid) {
-        return ApiResponse.error(idValidation.message, HTTP_STATUS.BAD_REQUEST);
+      // Validate inputs - simplified for demo compatibility
+      if (!productId || productId.trim() === '') {
+        return ApiResponse.error('Product ID is required', HTTP_STATUS.BAD_REQUEST);
       }
       if (!amount || isNaN(amount) || amount <= 0) {
         return ApiResponse.error(
@@ -92,17 +88,19 @@ class InvestmentService {
         .toISOString()
         .split("T")[0];
 
-      // Create investment
+      // Create investment (store percentage return, not total amount)
+      const expectedReturnPercentage = ((calc.finalAmount - parseFloat(amount)) / parseFloat(amount)) * 100;
       const investment = await investmentModel.create({
         userId,
         productId,
         amount: parseFloat(amount),
         status: INVESTMENT_STATUS.ACTIVE,
-        expectedReturn: calc.finalAmount,
+        expectedReturn: parseFloat(expectedReturnPercentage.toFixed(2)),
         maturityDate,
         currentValue: parseFloat(amount),
         notes: options.notes || null,
         autoReinvest: !!options.autoReinvest,
+        tenure: options.customTenure || product.tenure,
       });
 
       // Deduct balance (safeguarded at DB level too via trigger pattern in schema)
@@ -154,12 +152,8 @@ class InvestmentService {
    */
   async getInvestment(userId, investmentId) {
     try {
-      const idValidation = ValidationHelper.validateUUID(
-        investmentId,
-        "Investment ID"
-      );
-      if (!idValidation.isValid) {
-        return ApiResponse.error(idValidation.message, HTTP_STATUS.BAD_REQUEST);
+      if (!investmentId || investmentId.trim() === '') {
+        return ApiResponse.error('Investment ID is required', HTTP_STATUS.BAD_REQUEST);
       }
       const investment = await investmentModel.findById(investmentId);
       if (!investment || investment.userId !== userId) {

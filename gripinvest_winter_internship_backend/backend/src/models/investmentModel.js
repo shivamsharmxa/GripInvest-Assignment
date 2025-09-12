@@ -20,9 +20,9 @@ class InvestmentModel {
     const id = FormatHelper.generateUUID();
     const query = `
       INSERT INTO ${this.tableName} (
-        id, user_id, product_id, amount, invested_at, status, expected_return,
-        maturity_date, current_value, notes, auto_reinvest
-      ) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?)
+        id, user_id, product_id, amount, status, expected_return,
+        maturity_date, current_value, notes, auto_reinvest, tenure
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const params = [
@@ -36,6 +36,7 @@ class InvestmentModel {
       data.currentValue || data.amount,
       data.notes || null,
       !!data.autoReinvest,
+      data.tenure || null,
     ];
 
     await databaseConfig.executeQuery(query, params);

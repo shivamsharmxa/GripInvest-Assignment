@@ -141,7 +141,18 @@ class ValidationHelper {
       return { isValid: false, message: `${fieldName} is required` };
     }
     
-    if (!REGEX_PATTERNS.UUID.test(id)) {
+    // Allow both UUID and simple alphanumeric IDs for demo purposes
+    if (typeof id !== 'string' || id.trim().length === 0) {
+      return { isValid: false, message: `${fieldName} must be a valid string` };
+    }
+    
+    const trimmedId = id.trim();
+    
+    // Check if it's a valid UUID or simple alphanumeric ID (for demo)
+    const isUUID = REGEX_PATTERNS.UUID.test(trimmedId);
+    const isSimpleId = /^[a-zA-Z0-9\-_]{1,50}$/.test(trimmedId);
+    
+    if (!isUUID && !isSimpleId) {
       return { isValid: false, message: `Invalid ${fieldName} format` };
     }
     

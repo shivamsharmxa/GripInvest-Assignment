@@ -81,7 +81,7 @@ const ProductDetails = () => {
     description: 'High-grade corporate bond issued by ABC Corporation, offering stable returns with quarterly interest payments. This bond is backed by strong fundamentals and has a proven track record of consistent performance.',
     detailedDescription: 'This corporate bond represents a debt security issued by ABC Corporation, one of the leading companies in the manufacturing sector. The bond offers investors a fixed income opportunity with regular quarterly interest payments and principal repayment at maturity. The issuer has maintained a strong credit rating and has never defaulted on any of its debt obligations.',
     expectedReturn: 12.5,
-    minInvestment: 10000,
+    minInvestment: 5000,
     maxInvestment: 1000000,
     tenure: 24,
     riskLevel: 'Low',
@@ -607,7 +607,7 @@ const ProductDetails = () => {
             <div className="mt-4 pt-4 border-t border-gray-200">
               <p className="text-sm text-gray-600 mb-2">Quick Amount:</p>
               <div className="grid grid-cols-3 gap-2">
-                {[product.minInvestment, 50000, 100000].map(amount => (
+                {[product.minInvestment, 15000, 25000].map(amount => (
                   <button
                     key={amount}
                     type="button"

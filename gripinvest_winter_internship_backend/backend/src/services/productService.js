@@ -477,10 +477,9 @@ class ProductService {
    */
   async simulateInvestment(productId, amount, customTenure = null, userId = null) {
     try {
-      // Validate inputs
-      const idValidation = ValidationHelper.validateUUID(productId, 'Product ID');
-      if (!idValidation.isValid) {
-        return ApiResponse.error(idValidation.message, HTTP_STATUS.BAD_REQUEST);
+      // Validate inputs - simplified for demo compatibility
+      if (!productId || productId.trim() === '') {
+        return ApiResponse.error('Product ID is required', HTTP_STATUS.BAD_REQUEST);
       }
 
       if (!amount || isNaN(amount) || amount <= 0) {
@@ -857,10 +856,10 @@ class ProductService {
       const query = `
         SELECT * FROM (
           SELECT p.*, 
-            ABS(p.annual_yield - ?) as yield_diff,
-            ABS(p.tenure_months - ?) as tenure_diff,
+            ABS(p.expected_return - ?) as yield_diff,
+            ABS(p.tenure - ?) as tenure_diff,
             CASE WHEN p.risk_level = ? THEN 0 ELSE 1 END as risk_diff,
-            CASE WHEN p.investment_type = ? THEN 0 ELSE 1 END as type_diff
+            CASE WHEN p.category = ? THEN 0 ELSE 1 END as type_diff
           FROM investment_products p
           WHERE p.id != ? AND p.is_active = TRUE
         ) similar
@@ -869,10 +868,10 @@ class ProductService {
       `;
 
       const similarProducts = await databaseConfig.executeQuery(query, [
-        product.annualYield,
-        product.tenureMonths,
+        product.annualYield || product.expectedReturn,
+        product.tenureMonths || product.tenure,
         product.riskLevel,
-        product.investmentType,
+        product.investmentType || product.category,
         product.id,
         limit
       ]);
@@ -880,10 +879,10 @@ class ProductService {
       return similarProducts.map(p => ({
         id: p.id,
         name: p.name,
-        investmentType: p.investment_type,
-        annualYield: parseFloat(p.annual_yield),
+        investmentType: p.category,
+        annualYield: parseFloat(p.expected_return),
         riskLevel: p.risk_level,
-        tenureMonths: p.tenure_months,
+        tenureMonths: p.tenure,
         minInvestment: parseFloat(p.min_investment)
       }));
 
@@ -996,11 +995,11 @@ class ProductService {
    */
   async getAverageYield(type = null) {
     try {
-      let query = 'SELECT AVG(annual_yield) as avg_yield FROM investment_products WHERE is_active = TRUE';
+      let query = 'SELECT AVG(expected_return) as avg_yield FROM investment_products WHERE is_active = TRUE';
       let params = [];
 
       if (type) {
-        query += ' AND investment_type = ?';
+        query += ' AND category = ?';
         params.push(type);
       }
 
@@ -1020,17 +1019,17 @@ class ProductService {
   async getMostPopularType() {
     try {
       const query = `
-        SELECT p.investment_type, COUNT(i.id) as investment_count
+        SELECT p.category, COUNT(i.id) as investment_count
         FROM investment_products p
         LEFT JOIN investments i ON p.id = i.product_id
         WHERE p.is_active = TRUE
-        GROUP BY p.investment_type
+        GROUP BY p.category
         ORDER BY investment_count DESC
         LIMIT 1
       `;
 
       const result = await databaseConfig.executeQuery(query);
-      return result[0]?.investment_type || 'fd';
+      return result[0]?.category || 'fd';
 
     } catch (error) {
       console.error('Get most popular type error:', error);

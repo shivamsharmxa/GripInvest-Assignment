@@ -71,7 +71,7 @@ const Products = () => {
       category: 'Corporate Bonds',
       description: 'High-grade corporate bond with steady returns and low risk profile.',
       expectedReturn: 12.5,
-      minInvestment: 10000,
+      minInvestment: 5000,
       maxInvestment: 1000000,
       tenure: 24,
       riskLevel: 'Low',
