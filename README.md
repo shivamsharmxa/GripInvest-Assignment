@@ -238,8 +238,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👨‍💻 Author
 
 **Grip Invest Winter Intern 2025**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Email: your.email@example.com
+- GitHub: https://github.com/shivamsharmxa
+- Email: sharmas92565@gmail.com
 
 ## 🤖 AI Integration & Usage
 
