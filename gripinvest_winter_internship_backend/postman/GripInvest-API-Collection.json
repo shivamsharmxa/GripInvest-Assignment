@@ -1,0 +1,781 @@
+{
+  "info": {
+    "name": "Grip Invest API Collection",
+    "description": "Complete API collection for Grip Invest Mini Investment Platform",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "User Signup",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"SecurePassword123!\",\n  \"risk_appetite\": \"moderate\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup"]
+            },
+            "description": "Register a new user account"
+          },
+          "response": []
+        },
+        {
+          "name": "User Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('authToken', response.token);",
+                  "    pm.collectionVariables.set('userId', response.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"SecurePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login with user credentials"
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "forgot-password"]
+            },
+            "description": "Request password reset"
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"reset_token_here\",\n  \"password\": \"NewSecurePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "reset-password"]
+            },
+            "description": "Reset password with token"
+          },
+          "response": []
+        },
+        {
+          "name": "AI Password Analysis",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"TestPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/analyze-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "analyze-password"]
+            },
+            "description": "Get AI-powered password strength analysis"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Investment Products",
+      "item": [
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "investment_type",
+                  "value": "bond",
+                  "disabled": true
+                },
+                {
+                  "key": "risk_level",
+                  "value": "low",
+                  "disabled": true
+                },
+                {
+                  "key": "min_yield",
+                  "value": "5",
+                  "disabled": true
+                },
+                {
+                  "key": "max_yield",
+                  "value": "15",
+                  "disabled": true
+                },
+                {
+                  "key": "sort_by",
+                  "value": "annual_yield",
+                  "disabled": true
+                },
+                {
+                  "key": "sort_order",
+                  "value": "desc",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Fetch all investment products with optional filters"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/660e8400-e29b-41d4-a716-446655440000",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "660e8400-e29b-41d4-a716-446655440000"]
+            },
+            "description": "Get specific product details"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Product (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Government Bond 2025\",\n  \"investment_type\": \"bond\",\n  \"tenure_months\": 24,\n  \"annual_yield\": 8.75,\n  \"risk_level\": \"low\",\n  \"min_investment\": 5000.00,\n  \"max_investment\": 500000.00,\n  \"description\": \"High-yield government bond with 24-month maturity\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"]
+            },
+            "description": "Create new investment product (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"annual_yield\": 9.0,\n  \"description\": \"Updated description with better yield\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products/660e8400-e29b-41d4-a716-446655440000",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "660e8400-e29b-41d4-a716-446655440000"]
+            },
+            "description": "Update existing product (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/products/660e8400-e29b-41d4-a716-446655440000",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "660e8400-e29b-41d4-a716-446655440000"]
+            },
+            "description": "Delete product (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get AI Product Recommendations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/products/recommendations?risk_appetite=moderate",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "recommendations"],
+              "query": [
+                {
+                  "key": "risk_appetite",
+                  "value": "moderate"
+                },
+                {
+                  "key": "limit",
+                  "value": "5",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get AI-powered product recommendations"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Trending Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/trending?limit=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "trending"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Get trending investment products"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Investments",
+      "item": [
+        {
+          "name": "Create Investment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"660e8400-e29b-41d4-a716-446655440000\",\n  \"amount\": 10000.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/investments",
+              "host": ["{{baseUrl}}"],
+              "path": ["investments"]
+            },
+            "description": "Create a new investment"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Portfolio",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/investments/portfolio?status=active&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["investments", "portfolio"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "active"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sort_by",
+                  "value": "invested_at",
+                  "disabled": true
+                },
+                {
+                  "key": "sort_order",
+                  "value": "desc",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get user's investment portfolio"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Investment Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/investments/770e8400-e29b-41d4-a716-446655440000",
+              "host": ["{{baseUrl}}"],
+              "path": ["investments", "770e8400-e29b-41d4-a716-446655440000"]
+            },
+            "description": "Get specific investment details"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Investment Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"cancelled\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/investments/770e8400-e29b-41d4-a716-446655440000/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["investments", "770e8400-e29b-41d4-a716-446655440000", "status"]
+            },
+            "description": "Update investment status"
+          },
+          "response": []
+        },
+        {
+          "name": "Get AI Portfolio Insights",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/investments/insights",
+              "host": ["{{baseUrl}}"],
+              "path": ["investments", "insights"]
+            },
+            "description": "Get AI-powered portfolio insights"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Investment Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/investments/analytics?start_date=2024-01-01&end_date=2024-12-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["investments", "analytics"],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2024-12-31"
+                }
+              ]
+            },
+            "description": "Get investment analytics and performance data"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Transaction Logs",
+      "item": [
+        {
+          "name": "Get All Logs (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/logs?page=1&limit=50&status_code=200",
+              "host": ["{{baseUrl}}"],
+              "path": ["logs"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "key": "user_id",
+                  "value": "{{userId}}",
+                  "disabled": true
+                },
+                {
+                  "key": "email",
+                  "value": "john.doe@example.com",
+                  "disabled": true
+                },
+                {
+                  "key": "endpoint",
+                  "value": "/api/investments",
+                  "disabled": true
+                },
+                {
+                  "key": "method",
+                  "value": "POST",
+                  "disabled": true
+                },
+                {
+                  "key": "status_code",
+                  "value": "200"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2024-01-01",
+                  "disabled": true
+                },
+                {
+                  "key": "end_date",
+                  "value": "2024-12-31",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get all transaction logs (admin access required)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/logs/user/{{userId}}?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["logs", "user", "{{userId}}"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "method",
+                  "value": "POST",
+                  "disabled": true
+                },
+                {
+                  "key": "endpoint",
+                  "value": "/api/investments",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get logs for specific user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Error Logs (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/logs/errors?min_status=400&max_status=599",
+              "host": ["{{baseUrl}}"],
+              "path": ["logs", "errors"],
+              "query": [
+                {
+                  "key": "min_status",
+                  "value": "400"
+                },
+                {
+                  "key": "max_status",
+                  "value": "599"
+                },
+                {
+                  "key": "group_by",
+                  "value": "endpoint",
+                  "disabled": true
+                },
+                {
+                  "key": "start_date",
+                  "value": "2024-01-01",
+                  "disabled": true
+                },
+                {
+                  "key": "end_date",
+                  "value": "2024-12-31",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get error logs and analysis"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Log Analytics (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/logs/analytics?breakdown=hourly",
+              "host": ["{{baseUrl}}"],
+              "path": ["logs", "analytics"],
+              "query": [
+                {
+                  "key": "breakdown",
+                  "value": "hourly"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2024-01-01",
+                  "disabled": true
+                },
+                {
+                  "key": "end_date",
+                  "value": "2024-12-31",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get comprehensive log analytics"
+          },
+          "response": []
+        },
+        {
+          "name": "Get AI Error Summary (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/logs/ai-summary?period=24h",
+              "host": ["{{baseUrl}}"],
+              "path": ["logs", "ai-summary"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "24h"
+                },
+                {
+                  "key": "user_id",
+                  "value": "{{userId}}",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get AI-powered error analysis and recommendations"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Health & Utility",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/../../health",
+              "host": ["{{baseUrl}}"],
+              "path": ["..", "..", "health"]
+            },
+            "description": "Check API health status"
+          },
+          "response": []
+        },
+        {
+          "name": "API Information",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": ["{{baseUrl}}"]
+            },
+            "description": "Get API information and available endpoints"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
